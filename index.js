@@ -198,7 +198,8 @@ class Peer extends stream.Duplex {
       }
     }
     if (data.sdp) {
-      this._pc.setRemoteDescription(new (this._wrtc.RTCSessionDescription)(data))
+      try {
+        this._pc.setRemoteDescription(new (this._wrtc.RTCSessionDescription)(data))
         .then(() => {
           if (this.destroyed) return
 
@@ -212,6 +213,9 @@ class Peer extends stream.Duplex {
         .catch(err => {
           this.destroy(errCode(err, 'ERR_SET_REMOTE_DESCRIPTION'))
         })
+      } catch (err) {
+        this.destroy(errCode(err, 'ERR_SET_REMOTE_DESCRIPTION'))
+      }
     }
     if (!data.sdp && !data.candidate && !data.renegotiate && !data.transceiverRequest) {
       this.destroy(errCode(new Error('signal() called with invalid signal data'), 'ERR_SIGNALING'))
